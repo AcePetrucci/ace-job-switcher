@@ -48,36 +48,53 @@ public class FastJobSwitcher : IDisposable
             {
                 var lower = ("/" + configuration.Prefix + acronym + configuration.Suffix).ToLowerInvariant();
                 var upper = ("/" + configuration.Prefix + acronym + configuration.Suffix).ToUpperInvariant();
-                if (configuration.RegisterUppercaseCommands)
+
+                // Define command suffixes for different content types
+                var commandSuffixes = new List<string>
                 {
-                    if (Service.Commands.Commands.ContainsKey(upper))
-                    {
-                        Service.PluginLog.Warning($"Command already exists: {upper}");
-                    }
-                    else
-                    {
-                        registeredCommands.Add(upper);
-                        Service.Commands.AddHandler(upper, new CommandInfo(OnCommand)
-                        {
-                            HelpMessage = $"Switches to {name} class/job.",
-                            ShowInHelp = false,
-                        });
-                    }
-                }
-                if (configuration.RegisterLowercaseCommands)
+                    "", // Base command (no suffix)
+                    // Ultimates
+                    "ucob", "uwu", "tea", "dsr", "top", "fru",
+                    // Field Operations
+                    "eur", "boz", "ocu"
+                };
+
+                foreach (var suffix in commandSuffixes)
                 {
-                    if (Service.Commands.Commands.ContainsKey(lower))
+                    var lowerCmd = suffix == "" ? lower : lower + suffix;
+                    var upperCmd = suffix == "" ? upper : upper + suffix.ToUpperInvariant();
+
+                    if (configuration.RegisterUppercaseCommands)
                     {
-                        Service.PluginLog.Warning($"Command already exists: {lower}");
-                    }
-                    else
-                    {
-                        registeredCommands.Add(lower);
-                        Service.Commands.AddHandler(lower, new CommandInfo(OnCommand)
+                        if (Service.Commands.Commands.ContainsKey(upperCmd))
                         {
-                            HelpMessage = $"Switches to {name} class/job.",
-                            ShowInHelp = false,
-                        });
+                            Service.PluginLog.Warning($"Command already exists: {upperCmd}");
+                        }
+                        else
+                        {
+                            registeredCommands.Add(upperCmd);
+                            Service.Commands.AddHandler(upperCmd, new CommandInfo(OnCommand)
+                            {
+                                HelpMessage = $"Switches to {name} class/job.",
+                                ShowInHelp = false,
+                            });
+                        }
+                    }
+                    if (configuration.RegisterLowercaseCommands)
+                    {
+                        if (Service.Commands.Commands.ContainsKey(lowerCmd))
+                        {
+                            Service.PluginLog.Warning($"Command already exists: {lowerCmd}");
+                        }
+                        else
+                        {
+                            registeredCommands.Add(lowerCmd);
+                            Service.Commands.AddHandler(lowerCmd, new CommandInfo(OnCommand)
+                            {
+                                HelpMessage = $"Switches to {name} class/job.",
+                                ShowInHelp = false,
+                            });
+                        }
                     }
                 }
             }
@@ -106,14 +123,8 @@ public class FastJobSwitcher : IDisposable
             command = command.Substring(1);
         }
 
-        if (command.StartsWith(configuration.Prefix))
-        {
-            command = command.Substring(configuration.Prefix.Length);
-        }
-        if (command.EndsWith(configuration.Suffix))
-        {
-            command = command.Substring(0, command.Length - configuration.Suffix.Length);
-        }
+        var originalCommand = command;
+        command = command.Substring(0, 3);
 
         var cj = classJobSheet!.ToList().FirstOrDefault(row => row.Abbreviation.ToString().Equals(command, StringComparison.InvariantCultureIgnoreCase));
 
@@ -125,7 +136,7 @@ public class FastJobSwitcher : IDisposable
             return;
         }
 
-        var success = TryEquipBestGearsetForClassJob(cj);
+        var success = TryEquipBestGearsetForClassJob(cj, originalCommand);
 
         if (!success)
         {
@@ -136,25 +147,30 @@ public class FastJobSwitcher : IDisposable
         }
     }
 
-    private unsafe bool TryEquipBestGearsetForClassJob(ClassJob cj)
+    private unsafe bool TryEquipBestGearsetForClassJob(ClassJob cj, string commandText)
     {
         var rapture = RaptureGearsetModule.Instance();
         if (rapture != null)
         {
-            short bestLevel = 0;
             byte? bestId = null;
+            int bestScore = -1;
+            
             for (var i = 0; i < 100; i++)
             {
                 var gearset = rapture->GetGearset(i);
                 if (gearset != null && gearset->Flags.HasFlag(RaptureGearsetModule.GearsetFlag.Exists) && gearset->Id == i && gearset->ClassJob == cj.RowId)
                 {
-                    if (gearset->ItemLevel > bestLevel)
+                    var gearsetName = gearset->NameString;
+                    var score = CalculateMatchScore(commandText, gearsetName);
+                    
+                    if (score > bestScore)
                     {
-                        bestLevel = gearset->ItemLevel;
+                        bestScore = score;
                         bestId = gearset->Id;
                     }
                 }
             }
+            
             if (bestId.HasValue)
             {
                 rapture->EquipGearset(bestId.Value);
@@ -163,5 +179,54 @@ public class FastJobSwitcher : IDisposable
         }
 
         return false;
+    }
+
+    private int CalculateMatchScore(string commandText, string gearsetName)
+    {
+        if (string.IsNullOrWhiteSpace(commandText) || string.IsNullOrWhiteSpace(gearsetName))
+            return 0;
+
+        // Remove prefix and suffix from command for comparison
+        var cleanCommand = commandText;
+        if (cleanCommand.StartsWith("/"))
+            cleanCommand = cleanCommand.Substring(1);
+        if (cleanCommand.StartsWith(configuration.Prefix))
+            cleanCommand = cleanCommand.Substring(configuration.Prefix.Length);
+        if (cleanCommand.EndsWith(configuration.Suffix))
+            cleanCommand = cleanCommand.Substring(0, cleanCommand.Length - configuration.Suffix.Length);
+
+        // Convert both to lowercase for comparison
+        cleanCommand = cleanCommand.ToLowerInvariant();
+        var lowerGearsetName = gearsetName.ToLowerInvariant();
+
+        // Exact match gets highest priority
+        if (cleanCommand == lowerGearsetName)
+            return 1000;
+
+        // Check if gearset name starts with the command
+        if (lowerGearsetName.StartsWith(cleanCommand))
+            return 500 + cleanCommand.Length;
+
+        // Check if gearset name contains the command
+        if (lowerGearsetName.Contains(cleanCommand))
+            return 250 + cleanCommand.Length;
+
+        // Calculate character overlap
+        int overlap = 0;
+        int commandIndex = 0;
+        for (int i = 0; i < lowerGearsetName.Length && commandIndex < cleanCommand.Length; i++)
+        {
+            if (lowerGearsetName[i] == cleanCommand[commandIndex])
+            {
+                overlap++;
+                commandIndex++;
+            }
+        }
+
+        // Return overlap score if we matched all command characters
+        if (commandIndex == cleanCommand.Length)
+            return overlap;
+
+        return 0;
     }
 }
