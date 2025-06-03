@@ -56,7 +56,7 @@ public class FastJobSwitcher : IDisposable
                     // Ultimates
                     "ucob", "uwu", "tea", "dsr", "top", "fru",
                     // Field Operations
-                    "eur", "boz", "ocu"
+                    "eu", "bo", "oc"
                 };
 
                 foreach (var suffix in commandSuffixes)
