@@ -3,7 +3,7 @@
   <PropertyGroup>
     <Authors>Ace</Authors>
     <Company></Company>
-    <Version>2.2.0.0</Version>
+    <Version>2.3.0.0</Version>
     <Description>Ace Job Switcher</Description>
     <Copyright></Copyright>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
