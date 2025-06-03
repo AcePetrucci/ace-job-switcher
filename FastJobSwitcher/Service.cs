@@ -1,7 +1,7 @@
 using Dalamud.IoC;
 using Dalamud.Plugin.Services;
 
-namespace FastJobSwitcher;
+namespace AceJobSwitcher;
 
 public class Service
 {

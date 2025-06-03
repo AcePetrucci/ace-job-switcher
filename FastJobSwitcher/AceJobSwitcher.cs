@@ -6,15 +6,15 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace FastJobSwitcher;
+namespace AceJobSwitcher;
 
-public class FastJobSwitcher : IDisposable
+public class AceJobSwitcher : IDisposable
 {
     private readonly ConfigurationMKI configuration;
     private ExcelSheet<ClassJob>? classJobSheet;
     private HashSet<string> registeredCommands = [];
 
-    public FastJobSwitcher(ConfigurationMKI configuration)
+    public AceJobSwitcher(ConfigurationMKI configuration)
     {
         this.configuration = configuration;
         classJobSheet = Service.Data.Excel.GetSheet<ClassJob>();

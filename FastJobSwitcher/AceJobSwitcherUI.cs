@@ -3,15 +3,15 @@ using ImGuiNET;
 using System;
 using System.Numerics;
 
-namespace FastJobSwitcher;
+namespace AceJobSwitcher;
 
-public class FastJobSwitcherUI : Window, IDisposable
+public class AceJobSwitcherUI : Window, IDisposable
 {
     private readonly ConfigurationMKI configuration;
 
-    public FastJobSwitcherUI(ConfigurationMKI configuration)
+    public AceJobSwitcherUI(ConfigurationMKI configuration)
       : base(
-        "Fast Job Switcher##ConfigWindow",
+        "Ace Job Switcher##ConfigWindow",
         ImGuiWindowFlags.AlwaysAutoResize
         | ImGuiWindowFlags.NoResize
         | ImGuiWindowFlags.NoCollapse

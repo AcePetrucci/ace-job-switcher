@@ -1,7 +1,7 @@
 using Dalamud.Configuration;
 using System;
 
-namespace FastJobSwitcher;
+namespace AceJobSwitcher;
 
 [Serializable]
 public class ConfigurationBase : IPluginConfiguration

@@ -6,11 +6,11 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.IO;
 
-namespace FastJobSwitcher;
+namespace AceJobSwitcher;
 
-public sealed class FastJobSwitcherPlugin : IDalamudPlugin
+public sealed class AceJobSwitcherPlugin : IDalamudPlugin
 {
-    public string Name => "Fast Job Switcher";
+    public string Name => "Ace Job Switcher";
 
     private const string commandName = "/fjs";
 
@@ -18,11 +18,11 @@ public sealed class FastJobSwitcherPlugin : IDalamudPlugin
     public ICommandManager CommandManager { get; init; }
     public ConfigurationMKI Configuration { get; init; }
     public WindowSystem WindowSystem { get; init; }
-    public FastJobSwitcherUI Window { get; init; }
+    public AceJobSwitcherUI Window { get; init; }
 
-    public FastJobSwitcher Switcher { get; init; }
+    public AceJobSwitcher Switcher { get; init; }
 
-    public FastJobSwitcherPlugin(
+    public AceJobSwitcherPlugin(
         IDalamudPluginInterface pluginInterface,
         ICommandManager commandManager)
     {
@@ -31,12 +31,12 @@ public sealed class FastJobSwitcherPlugin : IDalamudPlugin
         PluginInterface = pluginInterface;
         CommandManager = commandManager;
 
-        WindowSystem = new("FastJobSwitcherPlugin");
+        WindowSystem = new("AceJobSwitcherPlugin");
 
         Configuration = LoadConfiguration();
         Configuration.Initialize(SaveConfiguration);
 
-        Window = new FastJobSwitcherUI(Configuration)
+        Window = new AceJobSwitcherUI(Configuration)
         {
             IsOpen = Configuration.IsVisible
         };
@@ -51,7 +51,7 @@ public sealed class FastJobSwitcherPlugin : IDalamudPlugin
         PluginInterface.UiBuilder.Draw += DrawUI;
         PluginInterface.UiBuilder.OpenConfigUi += DrawConfigUI;
 
-        Switcher = new FastJobSwitcher(Configuration);
+        Switcher = new AceJobSwitcher(Configuration);
     }
 
     public void Dispose()

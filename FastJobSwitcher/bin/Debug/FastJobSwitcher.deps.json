@@ -6,19 +6,19 @@
   "compilationOptions": {},
   "targets": {
     ".NETCoreApp,Version=v9.0": {
-      "FastJobSwitcher/2.2.0.0": {
+      "AceJobSwitcher/2.2.0.0": {
         "dependencies": {
           "DalamudPackager": "12.0.0"
         },
         "runtime": {
-          "FastJobSwitcher.dll": {}
+          "AceJobSwitcher.dll": {}
         }
       },
       "DalamudPackager/12.0.0": {}
     }
   },
   "libraries": {
-    "FastJobSwitcher/2.2.0.0": {
+    "AceJobSwitcher/2.2.0.0": {
       "type": "project",
       "serviceable": false,
       "sha512": ""

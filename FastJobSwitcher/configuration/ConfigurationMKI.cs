@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace FastJobSwitcher;
+namespace AceJobSwitcher;
 
 [Serializable]
 public class ConfigurationMKI : ConfigurationBase
