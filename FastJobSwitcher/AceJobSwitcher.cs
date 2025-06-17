@@ -20,16 +20,6 @@ public class AceJobSwitcher : IDisposable
     private List<MKDSupportJob>? phantomJobSheet;
     private HashSet<string> registeredCommands = new();
     
-    // Command suffixes for different content types
-    private static readonly List<string> CommandSuffixes = new()
-    {
-        "", // Base command (no suffix)
-        // Ultimates
-        "ucob", "uwu", "tea", "dsr", "top", "fru",
-        // Field Operations
-        "eu", "bo", "oc"
-    };
-    
     private static readonly Dictionary<string, string> PhantomJobNameAcronymMap = new()
     {
         { "Phantom Freelancer", "PFRE" },
@@ -93,7 +83,7 @@ public class AceJobSwitcher : IDisposable
                 var rId = row.RowId;
                 if (!string.IsNullOrWhiteSpace(acronym) && !string.IsNullOrWhiteSpace(name) && rId != 0)
                 {
-                    var suffixesToRegister = configuration.RegisterCommandSuffixes ? CommandSuffixes : new List<string> { "" };
+                    var suffixesToRegister = configuration.RegisterCommandSuffixes ? configuration.CommandSuffixes : new List<string> { "" };
                     
                     foreach (var suffix in suffixesToRegister)
                     {

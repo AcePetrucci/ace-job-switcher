@@ -12,7 +12,7 @@ public sealed class AceJobSwitcherPlugin : IDalamudPlugin
 {
     public string Name => "Ace Job Switcher";
 
-    private const string commandName = "/fjs";
+    private const string commandName = "/acejob";
 
     public IDalamudPluginInterface PluginInterface { get; init; }
     public ICommandManager CommandManager { get; init; }

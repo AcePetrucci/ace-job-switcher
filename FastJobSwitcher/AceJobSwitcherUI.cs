@@ -2,12 +2,14 @@ using Dalamud.Interface.Windowing;
 using ImGuiNET;
 using System;
 using System.Numerics;
+using System.Linq;
 
 namespace AceJobSwitcher;
 
 public class AceJobSwitcherUI : Window, IDisposable
 {
     private readonly ConfigurationMKII configuration;
+    private string newSuffix = "";
 
     public AceJobSwitcherUI(ConfigurationMKII configuration)
       : base(
@@ -22,7 +24,7 @@ public class AceJobSwitcherUI : Window, IDisposable
         SizeConstraints = new WindowSizeConstraints()
         {
             MinimumSize = new Vector2(268, 0),
-            MaximumSize = new Vector2(268, 1000)
+            MaximumSize = new Vector2(500, 1000)
         };
     }
 
@@ -69,64 +71,80 @@ public class AceJobSwitcherUI : Window, IDisposable
         if (configuration.RegisterCommandSuffixes)
         {
             ImGui.NewLine();
-            ImGui.TextWrapped("Command suffixes add variants like /blmucob, /blmtea for ultimates and /blmeu, /blmbo for field operations.");
+            ImGui.TextWrapped("Command Suffixes:");
+            ImGui.Text("Configure additional command variants (e.g., /blmucob, /blmtea)");
+            
+            ImGui.Indent();
+            
+            // Display existing suffixes with remove buttons
+            for (int i = 0; i < configuration.CommandSuffixes.Count; i++)
+            {
+                var suffix = configuration.CommandSuffixes[i];
+                var displayText = string.IsNullOrEmpty(suffix) ? "(base command)" : suffix;
+                
+                ImGui.PushID(i);
+                
+                // Text input for editing
+                var editableSuffix = suffix;
+                ImGui.SetNextItemWidth(150);
+                if (ImGui.InputText($"##suffix{i}", ref editableSuffix, 32))
+                {
+                    configuration.CommandSuffixes[i] = editableSuffix;
+                    configuration.Save();
+                }
+                
+                ImGui.SameLine();
+                
+                // Remove button (but don't allow removing the base command at index 0)
+                if (i == 0)
+                {
+                    ImGui.TextDisabled("(base)");
+                }
+                else if (ImGui.Button($"Remove##remove{i}"))
+                {
+                    configuration.CommandSuffixes.RemoveAt(i);
+                    configuration.Save();
+                    i--; // Adjust index since we removed an item
+                }
+                
+                ImGui.PopID();
+            }
+            
+            ImGui.NewLine();
+            
+            // Add new suffix
+            ImGui.Text("Add new suffix:");
+            ImGui.SetNextItemWidth(150);
+            ImGui.InputText("##newSuffix", ref newSuffix, 32);
+            ImGui.SameLine();
+            if (ImGui.Button("Add") && !string.IsNullOrWhiteSpace(newSuffix))
+            {
+                // Check if suffix already exists
+                if (!configuration.CommandSuffixes.Contains(newSuffix))
+                {
+                    configuration.CommandSuffixes.Add(newSuffix);
+                    configuration.Save();
+                    newSuffix = "";
+                }
+            }
+            
+            ImGui.NewLine();
+            
+            // Reset to defaults button
+            if (ImGui.Button("Reset to Defaults"))
+            {
+                configuration.CommandSuffixes = new()
+                {
+                    "", // Base command (no suffix)
+                    // Ultimates
+                    "ucob", "uwu", "tea", "dsr", "top", "fru",
+                    // Field Operations
+                    "eu", "bo", "oc"
+                };
+                configuration.Save();
+            }
+            
+            ImGui.Unindent();
         }
     }
-
-    // public override void Draw()
-    // {
-    //     ImGui.TextWrapped("Register commands for each class/job:");
-    //     ImGui.Indent();
-    //     {
-    //         var lowercaseEnabled = configuration.RegisterLowercaseCommands;
-    //         if (ImGui.Checkbox("Lowercase##LowercaseCommand", ref lowercaseEnabled))
-    //         {
-    //             configuration.RegisterLowercaseCommands = lowercaseEnabled;
-    //             configuration.Save();
-    //         }
-
-    //         var uppercaseEnabled = configuration.RegisterUppercaseCommands;
-    //         if (ImGui.Checkbox("Uppercase##UppercaseCommand", ref uppercaseEnabled))
-    //         {
-    //             configuration.RegisterUppercaseCommands = uppercaseEnabled;
-    //             configuration.Save();
-    //         }
-    //     }
-    //     ImGui.Unindent();
-
-    //     ImGui.NewLine();
-    //     ImGui.TextWrapped("Optional Prefix/Suffix for each command:");
-    //     ImGui.Indent();
-    //     {
-    //         ImGui.BeginTable("##table", 2);
-
-    //         ImGui.TableNextRow();
-    //         ImGui.TableSetColumnIndex(0);
-    //         ImGui.Text("Prefix:");
-    //         ImGui.TableSetColumnIndex(1);
-    //         ImGui.SetNextItemWidth(180);
-    //         var prefix = configuration.Prefix;
-    //         if (ImGui.InputText("##Prefix", ref prefix, 32))
-    //         {
-    //             configuration.Prefix = prefix;
-    //             configuration.Save();
-    //         }
-
-    //         ImGui.TableNextRow();
-    //         ImGui.TableSetColumnIndex(0);
-    //         ImGui.Text("Suffix:");
-    //         ImGui.TableSetColumnIndex(1);
-    //         var suffix = configuration.Suffix;
-    //         ImGui.SetNextItemWidth(180);
-    //         if (ImGui.InputText("##Suffix", ref suffix, 32))
-    //         {
-    //             configuration.Suffix = suffix;
-    //             configuration.Save();
-    //         }
-
-    //         ImGui.EndTable();
-    //         ImGui.TextWrapped("(The casing of the Prefix/Suffix is determined by the casing of the job command)");
-    //     }
-    //     ImGui.Unindent();
-    // }
 }

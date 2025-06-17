@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace AceJobSwitcher;
 
@@ -14,6 +15,15 @@ public class ConfigurationMKII : ConfigurationBase
     public bool RegisterPhantomJobs { get; set; } = true;
 
     public bool RegisterCommandSuffixes { get; set; } = true;
+
+    public List<string> CommandSuffixes { get; set; } = new()
+    {
+        "", // Base command (no suffix)
+        // Ultimates
+        "ucob", "uwu", "tea", "dsr", "top", "fru",
+        // Field Operations
+        "eu", "bo", "oc"
+    };
 
     public static ConfigurationMKII MigrateFrom(ConfigurationMKI oldConfig)
     {
