@@ -1,27 +1,77 @@
 using Dalamud.Game.Command;
+using FFXIVClientStructs.FFXIV.Client.Game;
+using FFXIVClientStructs.FFXIV.Client.UI.Agent;
 using FFXIVClientStructs.FFXIV.Client.UI.Misc;
-using Lumina.Excel;
+using FFXIVClientStructs.FFXIV.Component.GUI;
 using Lumina.Excel.Sheets;
+using Lumina.Text.ReadOnly;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
+using ValueType = FFXIVClientStructs.FFXIV.Component.GUI.ValueType;
 
 namespace AceJobSwitcher;
 
 public class AceJobSwitcher : IDisposable
 {
-    private readonly ConfigurationMKI configuration;
-    private ExcelSheet<ClassJob>? classJobSheet;
-    private HashSet<string> registeredCommands = [];
+    private readonly ConfigurationMKII configuration;
+    private List<ClassJob>? classJobSheet;
+    private List<MKDSupportJob>? phantomJobSheet;
+    private HashSet<string> registeredCommands = new();
+    
+    // Command suffixes for different content types
+    private static readonly List<string> CommandSuffixes = new()
+    {
+        "", // Base command (no suffix)
+        // Ultimates
+        "ucob", "uwu", "tea", "dsr", "top", "fru",
+        // Field Operations
+        "eu", "bo", "oc"
+    };
+    
+    private static readonly Dictionary<string, string> PhantomJobNameAcronymMap = new()
+    {
+        { "Phantom Freelancer", "PFRE" },
+        { "Phantom Knight", "PKNT" },
+        { "Phantom Berserker", "PBER" },
+        { "Phantom Monk", "PMNK" },
+        { "Phantom Ranger", "PRNG" },
+        { "Phantom Samurai", "PSAM" },
+        { "Phantom Bard", "PBRD" },
+        { "Phantom Geomancer", "PGEO" },
+        { "Phantom Time Mage", "PTIM" },
+        { "Phantom Cannoneer", "PCAN" },
+        { "Phantom Chemist", "PCHM" },
+        { "Phantom Oracle", "PORC" },
+        { "Phantom Thief", "PTHF" },
+    };
 
-    public AceJobSwitcher(ConfigurationMKI configuration)
+    public AceJobSwitcher(ConfigurationMKII configuration)
     {
         this.configuration = configuration;
-        classJobSheet = Service.Data.Excel.GetSheet<ClassJob>();
+        classJobSheet = Service.Data.Excel.GetSheet<ClassJob>()?.ToList();
         if (classJobSheet == null)
         {
             Service.PluginLog.Warning("Failed to load ClassJob sheet.");
-            return;
+        }
+
+        phantomJobSheet = Service.Data.Excel.GetSheet<MKDSupportJob>()?.ToList();
+        if (phantomJobSheet == null)
+        {
+            Service.PluginLog.Warning("Failed to load MKDSupportJob sheet.");
+        }
+        else
+        {
+            // print to log every row in phantomJobSheet
+            foreach (var row in phantomJobSheet)
+            {
+                var strings = row.GetType().GetProperties()
+                    .Where(p => p.PropertyType == typeof(ReadOnlySeString))
+                    .Select(p => (p.GetValue(row) as ReadOnlySeString?)?.ToString() ?? string.Empty)
+                    .ToArray();
+                Service.PluginLog.Information($"Phantom Job: {string.Join(", ", strings)}");
+            }
         }
 
         Register();
@@ -34,71 +84,44 @@ public class AceJobSwitcher : IDisposable
 
     public void Register()
     {
-        if (classJobSheet == null)
+        if (configuration.RegisterClassJobs)
         {
-            return;
-        }
-
-        classJobSheet.ToList().ForEach(row =>
-        {
-            var acronym = row.Abbreviation.ToString();
-            var name = row.Name.ToString();
-            var rId = row.RowId;
-            if (!string.IsNullOrWhiteSpace(acronym) && !string.IsNullOrWhiteSpace(name) && rId != 0)
+            classJobSheet?.ToList().ForEach(row =>
             {
-                var lower = ("/" + configuration.Prefix + acronym + configuration.Suffix).ToLowerInvariant();
-                var upper = ("/" + configuration.Prefix + acronym + configuration.Suffix).ToUpperInvariant();
-
-                // Define command suffixes for different content types
-                var commandSuffixes = new List<string>
+                var acronym = row.Abbreviation.ToString();
+                var name = row.Name.ToString();
+                var rId = row.RowId;
+                if (!string.IsNullOrWhiteSpace(acronym) && !string.IsNullOrWhiteSpace(name) && rId != 0)
                 {
-                    "", // Base command (no suffix)
-                    // Ultimates
-                    "ucob", "uwu", "tea", "dsr", "top", "fru",
-                    // Field Operations
-                    "eu", "bo", "oc"
-                };
-
-                foreach (var suffix in commandSuffixes)
-                {
-                    var lowerCmd = suffix == "" ? lower : lower + suffix;
-                    var upperCmd = suffix == "" ? upper : upper + suffix.ToUpperInvariant();
-
-                    if (configuration.RegisterUppercaseCommands)
+                    var suffixesToRegister = configuration.RegisterCommandSuffixes ? CommandSuffixes : new List<string> { "" };
+                    
+                    foreach (var suffix in suffixesToRegister)
                     {
-                        if (Service.Commands.Commands.ContainsKey(upperCmd))
-                        {
-                            Service.PluginLog.Warning($"Command already exists: {upperCmd}");
-                        }
-                        else
-                        {
-                            registeredCommands.Add(upperCmd);
-                            Service.Commands.AddHandler(upperCmd, new CommandInfo(OnCommand)
-                            {
-                                HelpMessage = $"Switches to {name} class/job.",
-                                ShowInHelp = false,
-                            });
-                        }
-                    }
-                    if (configuration.RegisterLowercaseCommands)
-                    {
-                        if (Service.Commands.Commands.ContainsKey(lowerCmd))
-                        {
-                            Service.PluginLog.Warning($"Command already exists: {lowerCmd}");
-                        }
-                        else
-                        {
-                            registeredCommands.Add(lowerCmd);
-                            Service.Commands.AddHandler(lowerCmd, new CommandInfo(OnCommand)
-                            {
-                                HelpMessage = $"Switches to {name} class/job.",
-                                ShowInHelp = false,
-                            });
-                        }
+                        var baseCommand = "/" + acronym;
+                        var upperCommand = suffix == "" ? baseCommand.ToUpperInvariant() : baseCommand.ToUpperInvariant() + suffix.ToUpperInvariant();
+                        var lowerCommand = suffix == "" ? baseCommand.ToLowerInvariant() : baseCommand.ToLowerInvariant() + suffix;
+                        
+                        RegisterCommand(upperCommand, name, "Class/Job");
+                        RegisterCommand(lowerCommand, name, "Class/Job");
                     }
                 }
-            }
-        });
+            });
+        }
+
+        if (configuration.RegisterPhantomJobs)
+        {
+            phantomJobSheet?.ForEach(row =>
+            {
+                var jobName = row.Unknown0.ExtractText();
+                var acronym = PhantomJobNameToAcronym(jobName);
+                if (!string.IsNullOrWhiteSpace(acronym))
+                {
+                    var command = "/" + acronym;
+                    RegisterCommand(command.ToUpperInvariant(), jobName, "Phantom Job");
+                    RegisterCommand(command.ToLowerInvariant(), jobName, "Phantom Job");
+                }
+            });
+        }
     }
 
     public void UnRegister()
@@ -124,26 +147,146 @@ public class AceJobSwitcher : IDisposable
         }
 
         var originalCommand = command;
-        command = command.Substring(0, 3);
 
-        var cj = classJobSheet!.ToList().FirstOrDefault(row => row.Abbreviation.ToString().Equals(command, StringComparison.InvariantCultureIgnoreCase));
+        // Handle class job commands (3 characters base + optional suffix)
+        if (command.Length >= 3 && classJobSheet != null)
+        {
+            var baseCommand = command.Substring(0, 3);
+            var cj = classJobSheet.FirstOrDefault(row => row.Abbreviation.ToString().Equals(baseCommand, StringComparison.InvariantCultureIgnoreCase));
+            
+            if (!cj.Equals(default(ClassJob)))
+            {
+                HandleClassJobCommand(cj, originalCommand);
+                return;
+            }
+        }
 
+        // Handle phantom job commands (4 characters)
+        if (command.Length == 4 && phantomJobSheet != null)
+        {
+            HandlePhantomJobCommand(command);
+        }
+    }
+
+    private void RegisterCommand(string command, string name, string type)
+    {
+        if (Service.Commands.Commands.ContainsKey(command))
+        {
+            Service.PluginLog.Warning($"Command already exists: {command}");
+        }
+        else
+        {
+            registeredCommands.Add(command);
+            Service.Commands.AddHandler(command, new CommandInfo(OnCommand)
+            {
+                HelpMessage = $"Switches to {name} {type}",
+                ShowInHelp = false,
+            });
+            Service.PluginLog.Information($"Registered command: {command} for {name} {type}");
+        }
+    }
+
+    private unsafe void HandleClassJobCommand(ClassJob cj, string originalCommand)
+    {
         if (cj.Equals(default(ClassJob)))
         {
-            var msg = $"JobSwitch: No class job found for command: {command}";
-            Service.PluginLog.Error(msg);
+            var msg = $"JobSwitch: No class job found for command: {originalCommand}";
+            // Service.PluginLog.Error(msg);
             Service.ChatGui.PrintError(msg);
             return;
         }
 
-        var success = TryEquipBestGearsetForClassJob(cj, originalCommand);
-
-        if (!success)
+        if (TryEquipBestGearsetForClassJob(cj, originalCommand))
+        {
+            Service.PluginLog.Information($"JobSwitch: Equipped best gearset for class job: {cj.Name}");
+        }
+        else
         {
             var msg = $"JobSwitch: No gearset found for class job: {cj.Name}";
-            Service.PluginLog.Error(msg);
+            // Service.PluginLog.Error(msg);
             Service.ChatGui.PrintError(msg);
-            return;
+        }
+    }
+
+    private string PhantomJobNameToAcronym(string name)
+    {
+        return PhantomJobNameAcronymMap.TryGetValue(name, out var acronym) ? acronym : string.Empty;
+    }
+
+    private string PhantomJobAcronymToName(string acronym)
+    {
+        foreach (var kvp in PhantomJobNameAcronymMap)
+        {
+            if (string.Equals(kvp.Value, acronym, StringComparison.InvariantCultureIgnoreCase))
+                return kvp.Key;
+        }
+        return string.Empty;
+    }
+
+    private unsafe void HandlePhantomJobCommand(string command)
+    {
+        if (command.StartsWith("p", StringComparison.InvariantCultureIgnoreCase))
+        {
+            var jobName = PhantomJobAcronymToName(command);
+
+            if (string.IsNullOrWhiteSpace(jobName))
+            {
+                var msg = $"JobSwitch: No Phantom Job found for command: {command}";
+                // Service.PluginLog.Error(msg);
+                Service.ChatGui.PrintError(msg);
+                return;
+            }
+
+            var row = phantomJobSheet!.FirstOrDefault(row => row.Unknown0.ExtractText().Equals(jobName, StringComparison.InvariantCultureIgnoreCase));
+
+            if (row.Equals(default(MKDSupportJob)))
+            {
+                var msg = $"JobSwitch: No Phantom Job found for command: {command}";
+                // Service.PluginLog.Error(msg);
+                Service.ChatGui.PrintError(msg);
+                return;
+            }
+
+            if (GameMain.Instance()->CurrentTerritoryIntendedUseId != 61)
+            {
+                var msg = "You can only use this command in the Occult Crescent";
+                // Service.PluginLog.Error(msg);
+                Service.ChatGui.PrintError(msg);
+                return;
+            }
+
+            var jobId = row.RowId;
+
+            var agent = AgentModule.Instance()->GetAgentByInternalId(AgentId.MKDSupportJobList);
+
+            if (agent == null)
+            {
+                var msg = "Failed to get MKDSupportJobList agent.";
+                Service.PluginLog.Error(msg);
+                Service.ChatGui.PrintError(msg);
+                return;
+            }
+
+            var eventObject = stackalloc AtkValue[1];
+            var atkValues = (AtkValue*)Marshal.AllocHGlobal(2 * sizeof(AtkValue));
+            atkValues[0].Type = ValueType.UInt;
+            atkValues[0].UInt = 0;
+            atkValues[1].Type = ValueType.UInt;
+            atkValues[1].UInt = jobId;
+
+            try
+            {
+                agent->ReceiveEvent(eventObject, atkValues, 2, 1);
+            }
+            catch (Exception ex)
+            {
+                Service.PluginLog.Error($"Failed to switch Phantom Job: {ex.Message}");
+                Service.ChatGui.PrintError($"Failed to switch Phantom Job: {ex.Message}");
+            }
+            finally
+            {
+                Marshal.FreeHGlobal(new IntPtr(atkValues));
+            }
         }
     }
 
@@ -186,16 +329,11 @@ public class AceJobSwitcher : IDisposable
         if (string.IsNullOrWhiteSpace(commandText) || string.IsNullOrWhiteSpace(gearsetName))
             return 0;
 
-        // Remove prefix and suffix from command for comparison
+        // Remove leading slash and convert to lowercase for comparison
         var cleanCommand = commandText;
         if (cleanCommand.StartsWith("/"))
             cleanCommand = cleanCommand.Substring(1);
-        if (cleanCommand.StartsWith(configuration.Prefix))
-            cleanCommand = cleanCommand.Substring(configuration.Prefix.Length);
-        if (cleanCommand.EndsWith(configuration.Suffix))
-            cleanCommand = cleanCommand.Substring(0, cleanCommand.Length - configuration.Suffix.Length);
-
-        // Convert both to lowercase for comparison
+        
         cleanCommand = cleanCommand.ToLowerInvariant();
         var lowerGearsetName = gearsetName.ToLowerInvariant();
 
