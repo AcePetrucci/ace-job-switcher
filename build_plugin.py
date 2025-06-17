@@ -48,26 +48,47 @@ def main():
         print(f"Error: Invalid JSON in {debug_json_path}: {e}")
         return False
     
-    # Step 3: Add DownloadLink entries to debug JSON
-    print("3. Adding DownloadLink entries...")
+    # Step 3: Handle JSON format (object or array) and add DownloadLink entries
+    print("3. Processing debug JSON format...")
+    
+    # Check if debug_json is already an array or a single object
+    if isinstance(debug_json, list):
+        print("   Debug JSON is already in array format")
+        if len(debug_json) > 0 and isinstance(debug_json[0], dict):
+            target_json = debug_json[0]  # Work with the first object in the array
+        else:
+            print("Error: Array format is unexpected - no valid object found")
+            return False
+    elif isinstance(debug_json, dict):
+        print("   Debug JSON is in object format")
+        target_json = debug_json
+    else:
+        print("Error: Debug JSON format is not recognized")
+        return False
+    
+    # Step 4: Add DownloadLink entries
+    print("4. Adding DownloadLink entries...")
     download_links = {
         "DownloadLinkInstall": main_json.get("DownloadLinkInstall"),
         "DownloadLinkTesting": main_json.get("DownloadLinkTesting"),
         "DownloadLinkUpdate": main_json.get("DownloadLinkUpdate")
     }
     
-    # Add the download links to debug JSON
+    # Add the download links to target JSON object
     for key, value in download_links.items():
         if value is not None:
-            debug_json[key] = value
+            target_json[key] = value
             print(f"   Added {key}: {value}")
     
-    # Step 4: Wrap the JSON content in an array
-    print("4. Wrapping JSON content in array...")
-    json_array = [debug_json]
+    # Step 5: Ensure JSON content is in array format
+    print("5. Ensuring JSON content is in array format...")
+    if isinstance(debug_json, list):
+        json_array = debug_json  # Already an array, use as-is
+    else:
+        json_array = [target_json]  # Wrap single object in array
     
-    # Step 5: Write the updated JSON back to file
-    print("5. Writing updated JSON file...")
+    # Step 6: Write the updated JSON back to file
+    print("6. Writing updated JSON file...")
     try:
         with open(debug_json_path, 'w', encoding='utf-8') as f:
             json.dump(json_array, f, indent=2, ensure_ascii=False)
@@ -76,31 +97,38 @@ def main():
         print(f"Error: Could not write to {debug_json_path}: {e}")
         return False
     
-    # Step 6: Create zip file
-    print("6. Creating zip file...")
+    # Step 7: Create zip file
+    print("7. Creating zip file...")
     
-    # Remove existing zip file if it exists
+    # Create zip file in a temporary location first to avoid corruption
+    temp_zip_path = Path("AceJobSwitcher_temp.zip")
+    
+    # Remove existing zip files if they exist
     if zip_path.exists():
         zip_path.unlink()
         print(f"   Removed existing {zip_path.name}")
+    if temp_zip_path.exists():
+        temp_zip_path.unlink()
     
     try:
-        with zipfile.ZipFile(zip_path, 'w', zipfile.ZIP_DEFLATED) as zipf:
+        with zipfile.ZipFile(temp_zip_path, 'w', zipfile.ZIP_DEFLATED, compresslevel=6) as zipf:
             # Walk through all files and directories in debug_dir
             for root, dirs, files in os.walk(debug_dir):
                 root_path = Path(root)
                 
-                # Skip the zip file itself to avoid recursion
-                if root_path == debug_dir and zip_path.name in files:
-                    files.remove(zip_path.name)
-                
                 for file in files:
                     file_path = root_path / file
+                    # Skip any existing zip files to avoid corruption
+                    if file_path.suffix.lower() == '.zip':
+                        continue
+                    
                     # Calculate relative path from debug_dir
                     relative_path = file_path.relative_to(debug_dir)
                     zipf.write(file_path, relative_path)
                     print(f"   Added: {relative_path}")
         
+        # Move the temporary zip file to the final location
+        shutil.move(temp_zip_path, zip_path)
         print(f"   Successfully created {zip_path}")
         print(f"   Zip file size: {zip_path.stat().st_size / 1024:.1f} KB")
         
