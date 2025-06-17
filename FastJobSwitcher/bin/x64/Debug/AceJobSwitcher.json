@@ -22,8 +22,8 @@
     "IconUrl": "https://raw.githubusercontent.com/AcePetrucci/ace-job-switcher/main/FastJobSwitcher/images/icon.png",
     "Punchline": "Always five* keystrokes away from any job",
     "AcceptsFeedback": true,
-    "DownloadLinkInstall": "https://github.com/AcePetrucci/ace-job-switcher/tree/main/FastJobSwitcher/bin/x64/Debug/FastJobSwitcher.zip",
-    "DownloadLinkTesting": "https://github.com/AcePetrucci/ace-job-switcher/tree/main/FastJobSwitcher/bin/x64/Debug/FastJobSwitcher.zip",
-    "DownloadLinkUpdate": "https://github.com/AcePetrucci/ace-job-switcher/tree/main/FastJobSwitcher/bin/x64/Debug/FastJobSwitcher.zip"
+    "DownloadLinkInstall": "https://github.com/AcePetrucci/ace-job-switcher/tree/main/FastJobSwitcher/bin/x64/Debug/AceJobSwitcher.zip",
+    "DownloadLinkTesting": "https://github.com/AcePetrucci/ace-job-switcher/tree/main/FastJobSwitcher/bin/x64/Debug/AceJobSwitcher.zip",
+    "DownloadLinkUpdate": "https://github.com/AcePetrucci/ace-job-switcher/tree/main/FastJobSwitcher/bin/x64/Debug/AceJobSwitcher.zip"
   }
 ]
