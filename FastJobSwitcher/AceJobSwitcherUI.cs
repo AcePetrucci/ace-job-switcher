@@ -2,7 +2,6 @@ using Dalamud.Interface.Windowing;
 using ImGuiNET;
 using System;
 using System.Numerics;
-using System.Linq;
 
 namespace AceJobSwitcher;
 
@@ -75,6 +74,13 @@ public class AceJobSwitcherUI : Window, IDisposable
             ImGui.Text("Configure additional command variants (e.g., /blmucob, /blmtea)");
             
             ImGui.Indent();
+            
+            // Ensure we have a list to work with
+            if (configuration.CommandSuffixes == null)
+            {
+                configuration.CommandSuffixes = configuration.GetCommandSuffixes();
+                configuration.Save();
+            }
             
             // Display existing suffixes with remove buttons
             for (int i = 0; i < configuration.CommandSuffixes.Count; i++)

@@ -83,7 +83,7 @@ public class AceJobSwitcher : IDisposable
                 var rId = row.RowId;
                 if (!string.IsNullOrWhiteSpace(acronym) && !string.IsNullOrWhiteSpace(name) && rId != 0)
                 {
-                    var suffixesToRegister = configuration.RegisterCommandSuffixes ? configuration.CommandSuffixes : new List<string> { "" };
+                    var suffixesToRegister = configuration.RegisterCommandSuffixes ? configuration.GetCommandSuffixes() : [""];
                     
                     foreach (var suffix in suffixesToRegister)
                     {

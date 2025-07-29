@@ -16,14 +16,28 @@ public class ConfigurationMKII : ConfigurationBase
 
     public bool RegisterCommandSuffixes { get; set; } = true;
 
-    public List<string> CommandSuffixes { get; set; } = new()
+    public List<string>? CommandSuffixes { get; set; }
+
+    public List<string> GetCommandSuffixes()
     {
-        "", // Base command (no suffix)
-        // Ultimates
-        "ucob", "uwu", "tea", "dsr", "top", "fru",
-        // Field Operations
-        "eu", "bo", "oc"
-    };
+        if (CommandSuffixes == null || CommandSuffixes.Count == 0)
+        {
+            return GetDefaultSuffixes();
+        }
+        return CommandSuffixes;
+    }
+
+    private static List<string> GetDefaultSuffixes()
+    {
+        return
+        [
+            "", // Base command (no suffix)
+            // Ultimates
+            "ucob", "uwu", "tea", "dsr", "top", "fru",
+            // Field Operations
+            "eu", "bo", "oc"
+        ];
+    }
 
     public static ConfigurationMKII MigrateFrom(ConfigurationMKI oldConfig)
     {
