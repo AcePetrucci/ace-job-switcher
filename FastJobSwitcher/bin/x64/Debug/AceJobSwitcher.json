@@ -3,7 +3,7 @@
     "Author": "Ace",
     "Name": "Ace Job Switcher",
     "InternalName": "AceJobSwitcher",
-    "AssemblyVersion": "3.0.0.1",
+    "AssemblyVersion": "3.0.7.3",
     "Description": "Enables the player to switch jobs using their three letter acronyms as commands. (*: five or more)",
     "ApplicableVersion": "any",
     "RepoUrl": "https://github.com/AcePetrucci/ace-job-switcher",
@@ -14,7 +14,7 @@
       "jobs",
       "switch"
     ],
-    "DalamudApiLevel": 12,
+    "DalamudApiLevel": 13,
     "LoadRequiredState": 0,
     "LoadSync": false,
     "CanUnloadAsync": false,

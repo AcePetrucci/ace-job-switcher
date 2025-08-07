@@ -20,7 +20,7 @@ public class AceJobSwitcher : IDisposable
     private List<MKDSupportJob>? phantomJobSheet;
     private HashSet<string> registeredCommands = new();
     
-    private static readonly Dictionary<string, string> PhantomJobNameAcronymMap = new()
+    public static readonly Dictionary<string, string> PhantomJobNameAcronymMap = new()
     {
         { "Phantom Freelancer", "PFRE" },
         { "Phantom Knight", "PKNT" },
