@@ -3,7 +3,7 @@
   <PropertyGroup>
     <Authors>Ace</Authors>
     <Company></Company>
-    <Version>7.4.0.0</Version>
+    <Version>7.4.0.1</Version>
     <Description>Ace Job Switcher</Description>
     <Copyright></Copyright>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
@@ -34,7 +34,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="DalamudPackager" Version="14.0.0" />
+    <PackageReference Include="DalamudPackager" Version="14.0.1" />
     <Reference Include="FFXIVClientStructs">
       <HintPath>$(DalamudLibPath)FFXIVClientStructs.dll</HintPath>
       <Private>false</Private>

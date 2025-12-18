@@ -6,7 +6,7 @@
   "compilationOptions": {},
   "targets": {
     ".NETCoreApp,Version=v10.0": {
-      "AceJobSwitcher/7.4.0.0": {
+      "AceJobSwitcher/7.4.0.1": {
         "runtime": {
           "AceJobSwitcher.dll": {}
         }
@@ -14,7 +14,7 @@
     }
   },
   "libraries": {
-    "AceJobSwitcher/7.4.0.0": {
+    "AceJobSwitcher/7.4.0.1": {
       "type": "project",
       "serviceable": false,
       "sha512": ""
