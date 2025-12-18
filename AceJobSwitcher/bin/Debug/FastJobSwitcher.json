@@ -14,8 +14,8 @@
     "LoadPriority": 0,
     "Punchline": "Always five* keystrokes away from any job",
     "AcceptsFeedback": true,
-    "DownloadLinkInstall": "https://github.com/AcePetrucci/ace-job-switcher/tree/main/FastJobSwitcher/bin/Debug/FastJobSwitcher.zip",
-    "DownloadLinkTesting": "https://github.com/AcePetrucci/ace-job-switcher/tree/main/FastJobSwitcher/bin/Debug/FastJobSwitcher.zip",
-    "DownloadLinkUpdate": "https://github.com/AcePetrucci/ace-job-switcher/tree/main/FastJobSwitcher/bin/Debug/FastJobSwitcher.zip"
+    "DownloadLinkInstall": "https://github.com/AcePetrucci/ace-job-switcher/tree/main/AceJobSwitcher/bin/Debug/AceJobSwitcher.zip",
+    "DownloadLinkTesting": "https://github.com/AcePetrucci/ace-job-switcher/tree/main/AceJobSwitcher/bin/Debug/AceJobSwitcher.zip",
+    "DownloadLinkUpdate": "https://github.com/AcePetrucci/ace-job-switcher/tree/main/AceJobSwitcher/bin/Debug/AceJobSwitcher.zip"
   }
 ]

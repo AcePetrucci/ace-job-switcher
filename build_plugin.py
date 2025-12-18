@@ -17,9 +17,9 @@ from pathlib import Path
 
 def main():
     # Define paths
-    main_json_path = Path("FastJobSwitcher/AceJobSwitcher.json")
-    debug_json_path = Path("FastJobSwitcher/bin/x64/Debug/AceJobSwitcher.json")
-    debug_dir = Path("FastJobSwitcher/bin/x64/Debug")
+    main_json_path = Path("AceJobSwitcher/AceJobSwitcher.json")
+    debug_json_path = Path("AceJobSwitcher/bin/x64/Debug/AceJobSwitcher.json")
+    debug_dir = Path("AceJobSwitcher/bin/x64/Debug")
     zip_path = debug_dir / "AceJobSwitcher.zip"
     
     print("Starting AceJobSwitcher build process...")

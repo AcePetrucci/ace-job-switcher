@@ -102,7 +102,7 @@ public class AceJobSwitcher : IDisposable
         {
             phantomJobSheet?.ForEach(row =>
             {
-                var jobName = row.Unknown0.ExtractText();
+                var jobName = row.Name.ExtractText();
                 var acronym = PhantomJobNameToAcronym(jobName);
                 if (!string.IsNullOrWhiteSpace(acronym))
                 {
@@ -227,7 +227,7 @@ public class AceJobSwitcher : IDisposable
                 return;
             }
 
-            var row = phantomJobSheet!.FirstOrDefault(row => row.Unknown0.ExtractText().Equals(jobName, StringComparison.InvariantCultureIgnoreCase));
+            var row = phantomJobSheet!.FirstOrDefault(row => row.Name.ExtractText().Equals(jobName, StringComparison.InvariantCultureIgnoreCase));
 
             if (row.Equals(default(MKDSupportJob)))
             {
@@ -237,13 +237,13 @@ public class AceJobSwitcher : IDisposable
                 return;
             }
 
-            if (GameMain.Instance()->CurrentTerritoryIntendedUseId != 61)
-            {
-                var msg = "You can only use this command in the Occult Crescent";
-                // Service.PluginLog.Error(msg);
-                Service.ChatGui.PrintError(msg);
-                return;
-            }
+            // if (GameMain.Instance()->CurrentTerritoryIntendedUseId != 61)
+            // {
+            //     var msg = "You can only use this command in the Occult Crescent";
+            //     // Service.PluginLog.Error(msg);
+            //     Service.ChatGui.PrintError(msg);
+            //     return;
+            // }
 
             var jobId = row.RowId;
 
