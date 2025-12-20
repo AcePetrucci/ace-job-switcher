@@ -1,24 +1,29 @@
-{
-  "Author": "Ace",
-  "Name": "Ace Job Switcher",
-  "InternalName": "AceJobSwitcher",
-  "AssemblyVersion": "7.4.0.2",
-  "Description": "Ace Job Switcher",
-  "ApplicableVersion": "any",
-  "RepoUrl": "https://github.com/AcePetrucci/ace-job-switcher",
-  "Tags": [
-    "UI",
-    "convenience",
-    "command",
-    "jobs",
-    "switch"
-  ],
-  "DalamudApiLevel": 14,
-  "LoadRequiredState": 0,
-  "LoadSync": false,
-  "CanUnloadAsync": false,
-  "LoadPriority": 0,
-  "IconUrl": "https://raw.githubusercontent.com/AcePetrucci/ace-job-switcher/main/AceJobSwitcher/images/icon.png",
-  "Punchline": "Always five* keystrokes away from any job",
-  "AcceptsFeedback": true
-}
+[
+  {
+    "Author": "Ace",
+    "Name": "Ace Job Switcher",
+    "InternalName": "AceJobSwitcher",
+    "AssemblyVersion": "7.4.0.2",
+    "Description": "Ace Job Switcher",
+    "ApplicableVersion": "any",
+    "RepoUrl": "https://github.com/AcePetrucci/ace-job-switcher",
+    "Tags": [
+      "UI",
+      "convenience",
+      "command",
+      "jobs",
+      "switch"
+    ],
+    "DalamudApiLevel": 14,
+    "LoadRequiredState": 0,
+    "LoadSync": false,
+    "CanUnloadAsync": false,
+    "LoadPriority": 0,
+    "IconUrl": "https://raw.githubusercontent.com/AcePetrucci/ace-job-switcher/main/AceJobSwitcher/images/icon.png",
+    "Punchline": "Always five* keystrokes away from any job",
+    "AcceptsFeedback": true,
+    "DownloadLinkInstall": "https://raw.githubusercontent.com/AcePetrucci/ace-job-switcher/main/AceJobSwitcher/bin/x64/Debug/AceJobSwitcher.zip",
+    "DownloadLinkTesting": "https://raw.githubusercontent.com/AcePetrucci/ace-job-switcher/main/AceJobSwitcher/bin/x64/Debug/AceJobSwitcher.zip",
+    "DownloadLinkUpdate": "https://raw.githubusercontent.com/AcePetrucci/ace-job-switcher/main/AceJobSwitcher/bin/x64/Debug/AceJobSwitcher.zip"
+  }
+]
