@@ -237,13 +237,13 @@ public class AceJobSwitcher : IDisposable
                 return;
             }
 
-            // if (GameMain.Instance()->CurrentTerritoryIntendedUseId != 61)
-            // {
-            //     var msg = "You can only use this command in the Occult Crescent";
-            //     // Service.PluginLog.Error(msg);
-            //     Service.ChatGui.PrintError(msg);
-            //     return;
-            // }
+            if (GameMain.Instance()->CurrentTerritoryIntendedUseId != FFXIVClientStructs.FFXIV.Client.Enums.TerritoryIntendedUse.OccultCrescent)
+            {
+                var msg = "You can only use this command in the Occult Crescent";
+                // Service.PluginLog.Error(msg);
+                Service.ChatGui.PrintError(msg);
+                return;
+            }
 
             var jobId = row.RowId;
 

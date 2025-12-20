@@ -50,6 +50,7 @@ public sealed class AceJobSwitcherPlugin : IDalamudPlugin
 
         PluginInterface.UiBuilder.Draw += DrawUI;
         PluginInterface.UiBuilder.OpenConfigUi += DrawConfigUI;
+        PluginInterface.UiBuilder.OpenMainUi += DrawConfigUI;
 
         Switcher = new AceJobSwitcher(Configuration);
     }
@@ -60,6 +61,7 @@ public sealed class AceJobSwitcherPlugin : IDalamudPlugin
 
         PluginInterface.UiBuilder.Draw -= DrawUI;
         PluginInterface.UiBuilder.OpenConfigUi -= DrawConfigUI;
+        PluginInterface.UiBuilder.OpenMainUi -= DrawConfigUI;
 
         CommandManager.RemoveHandler(commandName);
 
