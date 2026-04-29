@@ -9,7 +9,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
-using ValueType = FFXIVClientStructs.FFXIV.Component.GUI.ValueType;
 
 namespace AceJobSwitcher;
 
@@ -259,9 +258,9 @@ public class AceJobSwitcher : IDisposable
 
             var eventObject = stackalloc AtkValue[1];
             var atkValues = (AtkValue*)Marshal.AllocHGlobal(2 * sizeof(AtkValue));
-            atkValues[0].Type = ValueType.UInt;
+            atkValues[0].Type = AtkValueType.UInt;
             atkValues[0].UInt = 0;
-            atkValues[1].Type = ValueType.UInt;
+            atkValues[1].Type = AtkValueType.UInt;
             atkValues[1].UInt = jobId;
 
             try
